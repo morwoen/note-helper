@@ -8,9 +8,15 @@
   min-height: 100vh;
 }
 
-.App-piano {
+.App-controls {
+  display: flex;
+  flex-direction: row;
   margin-top: 20px;
   margin-bottom: 20px;
+}
+
+.App-controls > *:not(:first-child) {
+  margin-left: 10px;
 }
 
 .App-header {
@@ -43,17 +49,38 @@
   width: 100vw;
 }
 
+.App-note-display-note-container {
+  display: flex;
+  flex: 1;
+  border-right: solid grey 2px;
+  margin-right: 5px;
+  padding-right: 5px;
+}
+
 .App-note-display-note {
   display: flex;
   flex: 1;
   padding-left: 5px;
   padding-top: 10px;
   padding-bottom: 10px;
-  margin-right: 5px;
-  border-right: solid grey 2px;
   font-size: 2rem;
+  border-radius: 5px;
+}
+
+.App-note-display-note-container:last-child {
+  margin-right: 20px;
+}
+
+.App-note-display-note.highlight {
+  background-color: #588ed357;
+}
+
+.App-note-display-note.next-highlight {
+  background-color: #ffffff2e;
 }
 
 .App-note-display-clef {
   font-size: 3rem;
+  margin-left: 20px;
+  margin-right: 5px;
 }

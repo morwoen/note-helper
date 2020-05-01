@@ -5,23 +5,23 @@ import Button from '@material-ui/core/Button';
 import './Piano.css';
 
 const initialState = {
-  "C": false,
-  "C#": false,
-  "Db": false,
-  "D": false,
-  "D#": false,
-  "Eb": false,
-  "E": false,
-  "F": false,
-  "F#": false,
-  "Gb": false,
-  "G": false,
-  "G#": false,
-  "Ab": false,
-  "A": false,
-  "A#": false,
-  "Bb": false,
-  "B": false,
+  "C": true,
+  "C♯": false,
+  "D♭": false,
+  "D": true,
+  "D♯": false,
+  "E♭": false,
+  "E": true,
+  "F": true,
+  "F♯": false,
+  "G♭": false,
+  "G": true,
+  "G♯": false,
+  "A♭": false,
+  "A": true,
+  "A♯": false,
+  "B♭": false,
+  "B": true,
 };
 
 export default class Piano extends React.Component {
@@ -31,12 +31,33 @@ export default class Piano extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = initialState;
+
+    let previousNotes = [];
+
+    try {
+      previousNotes = JSON.parse(localStorage.getItem('notes'));
+    } catch {
+      // dont care
+    }
+
+    let startingState = {};
+    if (_.isEmpty(previousNotes)) {
+      _.extend(startingState, initialState);
+    } else {
+      _.extend(startingState, _.mapValues(initialState, () => false), _.chain(previousNotes)
+        .keyBy(x => x)
+        .mapValues(() => true)
+        .value());
+    }
+
+    this.state = startingState;
+    this.callOnChange(startingState);
   }
 
   clearSelected() {
-    this.setState(initialState);
-    this.callOnChange(initialState);
+    const stateChange = _.mapValues(this.state, () => false);
+    this.setState(stateChange);
+    this.callOnChange(stateChange);
   }
 
   selectNaturals() {
@@ -55,26 +76,28 @@ export default class Piano extends React.Component {
 
   selectAccidentals() {
     const stateChange = {
-      "C#": true,
-      "Db": true,
-      "D#": true,
-      "Eb": true,
-      "F#": true,
-      "Gb": true,
-      "G#": true,
-      "Ab": true,
-      "A#": true,
-      "Bb": true,
+      "C♯": true,
+      "D♭": true,
+      "D♯": true,
+      "E♭": true,
+      "F♯": true,
+      "G♭": true,
+      "G♯": true,
+      "A♭": true,
+      "A♯": true,
+      "B♭": true,
     };
     this.setState(stateChange);
     this.callOnChange(_.extend({}, this.state, stateChange));
   }
 
   callOnChange(state) {
-    this.props.onChange(_.chain(state)
+    const selectedNotes = _.chain(state)
       .pickBy()
       .keys()
-      .value());
+      .value();
+    this.props.onChange(selectedNotes);
+    localStorage.setItem('notes', JSON.stringify(selectedNotes));
   }
 
   changeNote = (note) => {
@@ -91,43 +114,43 @@ export default class Piano extends React.Component {
         <div className="piano">
           <div className="black-keys">
             <div className="black-key c">
-              <div className={`flat ${this.state['Db'] && 'selected'}`} onClick={this.changeNote('Db')}>
-                <span className="note">Db</span>
+              <div className={`flat ${this.state['D♭'] && 'selected'}`} onClick={this.changeNote('D♭')}>
+                <span className="note">D♭</span>
               </div>
-              <div className={`sharp ${this.state['C#'] && 'selected'}`} onClick={this.changeNote('C#')}>
-                <span className="note">C#</span>
+              <div className={`sharp ${this.state['C♯'] && 'selected'}`} onClick={this.changeNote('C♯')}>
+                <span className="note">C♯</span>
               </div>
             </div>
             <div className="black-key d">
-              <div className={`flat ${this.state['Eb'] && 'selected'}`} onClick={this.changeNote('Eb')}>
-                <span className="note">Eb</span>
+              <div className={`flat ${this.state['E♭'] && 'selected'}`} onClick={this.changeNote('E♭')}>
+                <span className="note">E♭</span>
               </div>
-              <div className={`sharp ${this.state['D#'] && 'selected'}`} onClick={this.changeNote('D#')}>
-                <span className="note">D#</span>
+              <div className={`sharp ${this.state['D♯'] && 'selected'}`} onClick={this.changeNote('D♯')}>
+                <span className="note">D♯</span>
               </div>
             </div>
             <div className="black-key f">
-              <div className={`flat ${this.state['Gb'] && 'selected'}`} onClick={this.changeNote('Gb')}>
-                <span className="note">Gb</span>
+              <div className={`flat ${this.state['G♭'] && 'selected'}`} onClick={this.changeNote('G♭')}>
+                <span className="note">G♭</span>
               </div>
-              <div className={`sharp ${this.state['F#'] && 'selected'}`} onClick={this.changeNote('F#')}>
-                <span className="note">F#</span>
+              <div className={`sharp ${this.state['F♯'] && 'selected'}`} onClick={this.changeNote('F♯')}>
+                <span className="note">F♯</span>
               </div>
             </div>
             <div className="black-key g">
-              <div className={`flat ${this.state['Ab'] && 'selected'}`} onClick={this.changeNote('Ab')}>
-                <span className="note">Ab</span>
+              <div className={`flat ${this.state['A♭'] && 'selected'}`} onClick={this.changeNote('A♭')}>
+                <span className="note">A♭</span>
               </div>
-              <div className={`sharp ${this.state['G#'] && 'selected'}`} onClick={this.changeNote('G#')}>
-                <span className="note">G#</span>
+              <div className={`sharp ${this.state['G♯'] && 'selected'}`} onClick={this.changeNote('G♯')}>
+                <span className="note">G♯</span>
               </div>
             </div>
             <div className="black-key a">
-              <div className={`flat ${this.state['Bb'] && 'selected'}`} onClick={this.changeNote('Bb')}>
-                <span className="note">Bb</span>
+              <div className={`flat ${this.state['B♭'] && 'selected'}`} onClick={this.changeNote('B♭')}>
+                <span className="note">B♭</span>
               </div>
-              <div className={`sharp ${this.state['A#'] && 'selected'}`} onClick={this.changeNote('A#')}>
-                <span className="note">A#</span>
+              <div className={`sharp ${this.state['A♯'] && 'selected'}`} onClick={this.changeNote('A♯')}>
+                <span className="note">A♯</span>
               </div>
             </div>
           </div>

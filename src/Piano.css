@@ -90,7 +90,8 @@
   margin-left: 34px;
 }
 
-.piano .black-keys .black-key .note, .piano .white-keys .white-key .note {
+.piano .black-keys .black-key .note,
+.piano .white-keys .white-key .note {
   position: absolute;
   bottom: 0;
   left: 0;
