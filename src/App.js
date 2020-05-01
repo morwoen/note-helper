@@ -138,8 +138,14 @@ export default class App extends React.Component {
         </div>
         <header className="App-header">
           <div className="App-button-row">
-            <Button variant="contained" color="primary" onClick={() => this.generateRow(4 - numRows)} disabled={this.state.playing}>
-              Generate Notes
+            <Button variant="contained" color="primary" onClick={() => {
+              if (numRows) {
+                this.metronome.current.play();
+              } else {
+                this.generateRow(4 - numRows);
+              }
+            }}>
+              {numRows ? (this.state.playing ? 'Stop' : 'Play') : 'Generate Notes'}
             </Button>
             <Button variant="contained" color="primary" onClick={async () => {
               if (this.metronome.current.isPlaying()) {
