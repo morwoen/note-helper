@@ -24,6 +24,14 @@ export default class App extends React.Component {
       errorShown: false,
       error: '',
     };
+
+    var ua = navigator.userAgent.toLowerCase();
+    if (ua.indexOf('safari') !== -1) {
+      if (ua.indexOf('chrome') < 0) {
+        this.state.error = 'This metronome does\'t work on Safari. Try another browser';
+        this.state.errorShown = true;
+      }
+    }
   }
 
   getRandomNote() {
@@ -172,7 +180,7 @@ export default class App extends React.Component {
               </div>
             ))}
           </div>
-          <Snackbar open={this.state.errorShown} autoHideDuration={6000} onClose={() => this.setState({ errorShown: false })}>
+          <Snackbar open={this.state.errorShown} onClose={() => this.setState({ errorShown: false })}>
             <Alert onClose={() => this.setState({ errorShown: false })} severity="error">
               {this.state.error}
             </Alert>
