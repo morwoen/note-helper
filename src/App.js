@@ -34,9 +34,13 @@ export default class App extends React.Component {
     }
   }
 
-  getRandomNote() {
-    const index = _.random(_.size(this.state.notes)-1);
-    return this.state.notes[index];
+  getRandomNote(lastNote) {
+    const index = _.random(_.size(this.state.notes) - 1);
+    let note = this.state.notes[index];
+    if (note === lastNote) {
+      note = this.state.notes[(index + 1) % _.size(this.state.notes)];
+    }
+    return note;
   }
 
   generateRow(n = 1) {
@@ -50,18 +54,33 @@ export default class App extends React.Component {
       return;
     }
 
+    const lastNote = _.chain(this.state.rows)
+      .last()
+      .get('data')
+      .last()
+      .value();
+
+    const note0 = this.getRandomNote(lastNote);
+    const note1 = this.getRandomNote(note0);
+    const note2 = this.getRandomNote(note1);
+    const note3 = this.getRandomNote(note2);
+    const note4 = this.getRandomNote(note3);
+    const note5 = this.getRandomNote(note4);
+    const note6 = this.getRandomNote(note5);
+    const note7 = this.getRandomNote(note6);
+
     this.setState({
       rows: [...this.state.rows, {
         id: _.uniqueId(),
         data: [
-          this.getRandomNote(),
-          this.getRandomNote(),
-          this.getRandomNote(),
-          this.getRandomNote(),
-          this.getRandomNote(),
-          this.getRandomNote(),
-          this.getRandomNote(),
-          this.getRandomNote(),
+          note0,
+          note1,
+          note2,
+          note3,
+          note4,
+          note5,
+          note6,
+          note7,
         ],
       }],
     }, () => {
