@@ -103,24 +103,24 @@
 }
 
 .piano .white-keys .white-key.selected {
-  background-color: #e5ffd7;
+  background-color: #979ec5;
 }
 
 .piano .white-keys .white-key.selected:hover {
-  background-color: #b5cbaa;
+  background-color: #68709c;
 }
 
 .piano .black-keys .black-key .sharp:hover,
 .piano .black-keys .black-key .flat:hover {
-  background-color: rgb(91, 91, 91);
+  background-color: #373946;
 }
 
 .piano .black-keys .black-key .sharp.selected,
 .piano .black-keys .black-key .flat.selected {
-  background-color: rgb(64, 96, 55);
+  background-color: #30409c;
 }
 
 .piano .black-keys .black-key .sharp.selected:hover,
 .piano .black-keys .black-key .flat.selected:hover {
-  background-color: rgb(84, 125, 72);
+  background-color: #414c8c;
 }
