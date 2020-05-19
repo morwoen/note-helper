@@ -5,7 +5,8 @@ import Piano from './Piano';
 import Button from '@material-ui/core/Button';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
-import './App.css';
+
+import './Styles/style.scss';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -120,7 +121,7 @@ export default class App extends React.Component {
 
     return (
       <div className="App">
-        <div className="App-controls">
+        <div className="App__controls">
           <Piano onChange={(notes) => this.setState({ notes })} />
           <Metronome
             ref={this.metronome}
@@ -155,8 +156,8 @@ export default class App extends React.Component {
             }}
           />
         </div>
-        <header className="App-header">
-          <div className="App-button-row">
+        <header className="App__header">
+          <div className="App__button-row">
             <Button variant="contained" color="primary" onClick={() => {
               if (numRows) {
                 this.metronome.current.play();
@@ -187,16 +188,16 @@ export default class App extends React.Component {
               Clear
             </Button>
           </div>
-          <div className="App-note-display-container">
+          <div className="App__note-display--container">
             {this.state.rows.map((row, indexRow) => (
-              <div ref={!indexRow && this.firstBar} key={row.id} className="App-note-display-row">
-                <span className="App-note-display-clef">&#x1d122;</span>
+              <div ref={!indexRow && this.firstBar} key={row.id} className="App__note-display--row">
+                <span className="App__note-display--clef">&#x1d122;</span>
                 {row.data.map((note, indexNote) => {
                   const isCurrent = this.state.highlightRow === indexRow && this.state.highlightNote === indexNote;
                   const isNext = nextHighlightedRow === indexRow && nextHighlightedNote === indexNote;
                   return (
-                    <div key={indexNote} className="App-note-display-note-container">
-                      <div className={`App-note-display-note ${isCurrent && 'highlight'} ${isNext && 'next-highlight'}`}>
+                    <div key={indexNote} className="App__note-display--note-container">
+                      <div className={`App__note-display--note ${isCurrent && 'highlight'} ${isNext && 'next-highlight'}`}>
                         {note}
                       </div>
                     </div>
