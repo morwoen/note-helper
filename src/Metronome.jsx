@@ -10,8 +10,6 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Fab from '@material-ui/core/Fab';
 
-import './Metronome.css';
-
 export default class Metronome extends React.Component {
   static defaultProps = {
     onPlay: _.noop,
@@ -214,14 +212,14 @@ export default class Metronome extends React.Component {
 
   render() {
     return (
-      <div className="metronome-container">
+      <div className="metronome__container">
         <div className="vertical-container">
           <div className="play-button">
             <Fab size="small" color="primary" aria-label="play/pause" onClick={() => this.play()}>
               {this.state.isPlaying ? <Pause /> : <Play />}
             </Fab>
           </div>
-          <div className="bpm-container">
+          <div className="metronome__bpm--container">
             <Typography variant="h4">
               {this.state.tempo}
             </Typography>
@@ -242,7 +240,7 @@ export default class Metronome extends React.Component {
             }}
             aria-labelledby="continuous-slider"
           />
-          <div className="volume-container">
+          <div className="metronome__volume--container">
             <Grid container spacing={2} >
               <Grid item>
                 <VolumeDown />
@@ -267,7 +265,7 @@ export default class Metronome extends React.Component {
           </div>
         </div>
         <div className="vertical-container">
-          <div className="bpm-container">
+          <div className="metronome__bpm--container">
             <Typography variant="h4">
               {this.state.meter}
             </Typography>
@@ -290,16 +288,16 @@ export default class Metronome extends React.Component {
           />
           <div className="button-group">
             <Button variant="contained" color="primary" disabled={this.state.pattern === 'quarter'} onClick={() => this.changePattern('quarter')}>
-              <div className="icon quarter-icon"></div>
+              <div className="icon icon--quarter"></div>
             </Button>
             <Button variant="contained" color="primary" disabled={this.state.pattern === 'eighth'} onClick={() => this.changePattern('eighth')}>
-              <div className="icon eighth-icon"></div>
+              <div className="icon icon--eighth"></div>
             </Button>
             <Button variant="contained" color="primary" disabled={this.state.pattern === 'sixteenth'} onClick={() => this.changePattern('sixteenth')}>
-              <div className="icon sixteenth-icon"></div>
+              <div className="icon icon--sixteenth"></div>
             </Button>
             <Button variant="contained" color="primary" disabled={this.state.pattern === 'triplet'} onClick={() => this.changePattern('triplet')}>
-              <div className="icon triplet-icon"></div>
+              <div className="icon icon--triplet"></div>
             </Button>
           </div>
         </div>
