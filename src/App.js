@@ -1,10 +1,11 @@
 import React from 'react';
 import _ from 'lodash';
-import Metronome from './Metronome';
-import Piano from './Piano';
+
 import Button from '@material-ui/core/Button';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
+
+import Controls from './Containers/Controls';
 
 import './Styles/style.scss';
 
@@ -107,6 +108,41 @@ export default class App extends React.Component {
     });
   }
 
+  selectNotes(notes) {
+    this.setState({ notes });
+  }
+
+  setNextRow(newRow, nextHighlightedNote, nextHighlightedRow) {
+    const initialClick = this.state.initialClick;
+    if (!initialClick) {
+      this.setState({
+        initialClick: true,
+      });
+    } else {
+      if (newRow) {
+        this.generateRow();
+      }
+      this.setState({
+        highlightNote: nextHighlightedNote || 0,
+        highlightRow: nextHighlightedRow || 0,
+      });
+    }
+  }
+
+  play(numRows) {
+    this.generateRow(4 - numRows);
+    this.setState({
+      initialClick: false,
+      playing: true,
+    });
+  }
+
+  stop() {
+    this.setState({
+      playing: false,
+    });
+  }
+
   render() {
     const notes = _.chain(this.state.rows)
       .get(this.state.highlightRow)
@@ -122,38 +158,12 @@ export default class App extends React.Component {
     return (
       <div className="App">
         <div className="App__controls">
-          <Piano onChange={(notes) => this.setState({ notes })} />
-          <Metronome
-            ref={this.metronome}
-            tempo={120}
-            onWholeClick={() => {
-              const initialClick = this.state.initialClick;
-              if (!initialClick) {
-                this.setState({
-                  initialClick: true,
-                });
-              } else {
-                if (newRow) {
-                  this.generateRow();
-                }
-                this.setState({
-                  highlightNote: nextHighlightedNote || 0,
-                  highlightRow: nextHighlightedRow || 0,
-                });
-              }
-            }}
-            onPlay={() => {
-              this.generateRow(4 - numRows);
-              this.setState({
-                initialClick: false,
-                playing: true,
-              });
-            }}
-            onStop={() => {
-              this.setState({
-                playing: false,
-              });
-            }}
+          <Controls
+            selectNotes={this.selectNotes.bind(this)}
+            metronome={this.metronome}
+            setNextRow={() => this.setNextRow(newRow, nextHighlightedNote, nextHighlightedRow)}
+            play={() => this.play(numRows)}
+            stop={this.stop.bind(this)}
           />
         </div>
         <header className="App__header">
