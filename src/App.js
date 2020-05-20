@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import _ from 'lodash';
 
-import Button from '@material-ui/core/Button';
-import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
+import { Snackbar } from '@material-ui/core';
 
 import Controls from './Containers/Controls';
+import MusicSheet from './Containers/MusicSheet';
 
 import './Styles/style.scss';
 
@@ -129,7 +129,7 @@ export default class App extends React.Component {
     }
   }
 
-  play(numRows) {
+  playMetronome(numRows) {
     this.generateRow(4 - numRows);
     this.setState({
       initialClick: false,
@@ -137,10 +137,59 @@ export default class App extends React.Component {
     });
   }
 
-  stop() {
+  stopMetronome() {
     this.setState({
       playing: false,
     });
+  }
+
+  play(numRows) {
+    if (numRows) {
+      this.metronome.current.play();
+    } else {
+      this.generateRow(4 - numRows);
+    }
+  }
+
+  async startOver() {
+    if (this.metronome.current.isPlaying()) {
+      await this.metronome.current.play();
+    }
+    this.setState({
+      highlightNote: -1,
+      highlightRow: 0,
+    });
+    this.metronome.current.play();
+  }
+
+  async clearRows() {
+    if (this.metronome.current.isPlaying()) {
+      await this.metronome.current.play();
+    }
+    this.resetRows();
+  }
+
+  renderRows(nextHighlightedRow, nextHighlightedNote) {
+    return (
+      <Fragment>
+        {this.state.rows.map((row, indexRow) => (
+          <div ref={!indexRow && this.firstBar} key={row.id} className="App__note-display--row">
+            <span className="App__note-display--clef">&#x1d122;</span>
+            {row.data.map((note, indexNote) => {
+              const isCurrent = this.state.highlightRow === indexRow && this.state.highlightNote === indexNote;
+              const isNext = nextHighlightedRow === indexRow && nextHighlightedNote === indexNote;
+              return (
+                <div key={indexNote} className="App__note-display--note-container">
+                  <div className={`App__note-display--note ${isCurrent && 'highlight'} ${isNext && 'next-highlight'}`}>
+                    {note}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ))}
+      </Fragment>
+    );
   }
 
   render() {
@@ -159,69 +208,28 @@ export default class App extends React.Component {
       <div className="App">
         <div className="App__controls">
           <Controls
-            selectNotes={this.selectNotes.bind(this)}
+            selectNotes={(notes) => this.selectNotes(notes)}
             metronome={this.metronome}
             setNextRow={() => this.setNextRow(newRow, nextHighlightedNote, nextHighlightedRow)}
-            play={() => this.play(numRows)}
-            stop={this.stop.bind(this)}
+            playMetronome={() => this.playMetronome(numRows)}
+            stopMetronome={() => this.stopMetronome()}
           />
         </div>
-        <header className="App__header">
-          <div className="App__button-row">
-            <Button variant="contained" color="primary" onClick={() => {
-              if (numRows) {
-                this.metronome.current.play();
-              } else {
-                this.generateRow(4 - numRows);
-              }
-            }}>
-              {numRows ? (this.state.playing ? 'Stop' : 'Play') : 'Generate Notes'}
-            </Button>
-            <Button variant="contained" color="primary" onClick={async () => {
-              if (this.metronome.current.isPlaying()) {
-                await this.metronome.current.play();
-              }
-              this.setState({
-                highlightNote: -1,
-                highlightRow: 0,
-              });
-              this.metronome.current.play();
-            }}>
-              {numRows ? 'Start Over' : 'Generate and Play'}
-            </Button>
-            <Button variant="contained" color="primary" onClick={async () => {
-              if (this.metronome.current.isPlaying()) {
-                await this.metronome.current.play();
-              }
-              this.resetRows();
-            }}>
-              Clear
-            </Button>
-          </div>
-          <div className="App__note-display--container">
-            {this.state.rows.map((row, indexRow) => (
-              <div ref={!indexRow && this.firstBar} key={row.id} className="App__note-display--row">
-                <span className="App__note-display--clef">&#x1d122;</span>
-                {row.data.map((note, indexNote) => {
-                  const isCurrent = this.state.highlightRow === indexRow && this.state.highlightNote === indexNote;
-                  const isNext = nextHighlightedRow === indexRow && nextHighlightedNote === indexNote;
-                  return (
-                    <div key={indexNote} className="App__note-display--note-container">
-                      <div className={`App__note-display--note ${isCurrent && 'highlight'} ${isNext && 'next-highlight'}`}>
-                        {note}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
-          <Snackbar open={this.state.errorShown} onClose={() => this.setState({ errorShown: false })}>
-            <Alert onClose={() => this.setState({ errorShown: false })} severity="error">
-              {this.state.error}
-            </Alert>
-          </Snackbar>
-        </header>
+        <div className="App__header">
+          <MusicSheet
+            play={() => this.play(numRows)}
+            playing={this.state.playing}
+            numRows={numRows}
+            startOver={() => this.startOver()}
+            clearRows={() => this.clearRows()}
+            renderRows={() => this.renderRows(nextHighlightedRow, nextHighlightedNote)}
+          />
+        </div>
+        <Snackbar open={this.state.errorShown} onClose={() => this.setState({ errorShown: false })}>
+          <Alert onClose={() => this.setState({ errorShown: false })} severity="error">
+            {this.state.error}
+          </Alert>
+        </Snackbar>
       </div>
     );
   }

@@ -1,6 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
-import Button from '@material-ui/core/Button';
+
+import { Button } from '@material-ui/core';
 
 const initialState = {
   "C": true,

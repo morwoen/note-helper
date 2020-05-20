@@ -9,19 +9,19 @@ export default class Controls extends React.Component {
       selectNotes,
       metronome,
       setNextRow,
-      play,
-      stop,
+      playMetronome,
+      stopMetronome,
     } = this.props;
 
     return (
       <Fragment>
-        <Piano onChange={selectNotes} />
+        <Piano onChange={(notes) => selectNotes(notes)} />
         <Metronome
           ref={metronome}
           tempo={120}
           onWholeClick={setNextRow}
-          onPlay={play}
-          onStop={stop}
+          onPlay={playMetronome}
+          onStop={stopMetronome}
         />
       </Fragment>
     );

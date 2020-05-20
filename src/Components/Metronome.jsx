@@ -1,14 +1,20 @@
 import React from 'react';
 import _ from 'lodash';
-import Grid from '@material-ui/core/Grid';
-import Slider from '@material-ui/core/Slider';
-import VolumeDown from '@material-ui/icons/VolumeDown';
-import VolumeUp from '@material-ui/icons/VolumeUp';
-import Play from '@material-ui/icons/PlayArrow';
-import Pause from '@material-ui/icons/Pause';
-import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
-import Fab from '@material-ui/core/Fab';
+
+import {
+  Grid,
+  Slider,
+  Typography,
+  Button,
+  Fab,
+} from '@material-ui/core';
+
+import {
+  VolumeDown,
+  VolumeUp,
+  PlayArrow,
+  Pause,
+} from '@material-ui/icons';
 
 export default class Metronome extends React.Component {
   static defaultProps = {
@@ -216,7 +222,7 @@ export default class Metronome extends React.Component {
         <div className="vertical-container">
           <div className="play-button">
             <Fab size="small" color="primary" aria-label="play/pause" onClick={() => this.play()}>
-              {this.state.isPlaying ? <Pause /> : <Play />}
+              {this.state.isPlaying ? <Pause /> : <PlayArrow />}
             </Fab>
           </div>
           <div className="metronome__bpm--container">
