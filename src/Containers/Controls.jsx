@@ -1,14 +1,13 @@
 import React, { Fragment } from 'react';
 
-import Piano from '../Components/Piano';
-import Metronome from '../Components/Metronome';
+import Piano from '../Containers/Piano';
+import Metronome from '../Containers/Metronome';
 
 export default class Controls extends React.Component {
   render() {
     const {
       selectNotes,
       metronome,
-      setNextRow,
       playMetronome,
       stopMetronome,
     } = this.props;
@@ -19,7 +18,6 @@ export default class Controls extends React.Component {
         <Metronome
           ref={metronome}
           tempo={120}
-          onWholeClick={setNextRow}
           onPlay={playMetronome}
           onStop={stopMetronome}
         />

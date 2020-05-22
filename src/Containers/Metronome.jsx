@@ -16,6 +16,8 @@ import {
   Pause,
 } from '@material-ui/icons';
 
+import { EVENTS } from '../App';
+
 export default class Metronome extends React.Component {
   static defaultProps = {
     onPlay: _.noop,
@@ -117,6 +119,7 @@ export default class Metronome extends React.Component {
       this.nextNoteTime = this.audioContext.currentTime;
       this.timerWorker.postMessage("start");
       this.props.onPlay();
+      document.dispatchEvent(new CustomEvent(EVENTS.METRONOME.PLAY));
     } else {
       _.each(this.notesInQueue, noteData => {
         if (noteData.callbackTimer) clearTimeout(noteData.callbackTimer);
@@ -124,6 +127,7 @@ export default class Metronome extends React.Component {
       this.notesInQueue = [];
       this.timerWorker.postMessage("stop");
       this.props.onStop();
+      document.dispatchEvent(new CustomEvent(EVENTS.METRONOME.STOP));
     }
     return promise;
   }
@@ -183,30 +187,35 @@ export default class Metronome extends React.Component {
       }
       noteData.callbackTimer = setTimeout(() => {
         this.props.onWholeClick();
+        document.dispatchEvent(new CustomEvent(EVENTS.METRONOME.WHOLE_CLICK));
       }, (time - this.audioContext.currentTime) * 1000);
     } else if (beatNumber % 12 === 0) { // quarter notes = medium pitch
       osc.frequency.value = this.tripletVolume ? tripletAccentFrequency : offbeatFrequency;
       gainNode.gain.value = this.calcVolume(this.quarterVolume);
       noteData.callbackTimer = setTimeout(() => {
         this.props.onQuarterClick();
+        document.dispatchEvent(new CustomEvent(EVENTS.METRONOME.QUARTER_CLICK));
       }, (time - this.audioContext.currentTime) * 1000);
     } else if (beatNumber % 6 === 0) {
       osc.frequency.value = offbeatFrequency;
       gainNode.gain.value = this.calcVolume(this.eighthVolume);
       noteData.callbackTimer = setTimeout(() => {
         this.props.onEighthClick();
+        document.dispatchEvent(new CustomEvent(EVENTS.METRONOME.EIGHTH_CLICK));
       }, (time - this.audioContext.currentTime) * 1000);
     } else if (beatNumber % 4 === 0) {
       osc.frequency.value = offbeatFrequency;
       gainNode.gain.value = this.calcVolume(this.tripletVolume);
       noteData.callbackTimer = setTimeout(() => {
         this.props.onTripletClick();
+        document.dispatchEvent(new CustomEvent(EVENTS.METRONOME.TRIPLET_CLICK));
       }, (time - this.audioContext.currentTime) * 1000);
     } else if (beatNumber % 3 === 0) { // other 16th notes = low pitch
       osc.frequency.value = offbeatFrequency;
       gainNode.gain.value = this.calcVolume(this.sixteenthVolume);
       noteData.callbackTimer = setTimeout(() => {
         this.props.onSixteenthClick();
+        document.dispatchEvent(new CustomEvent(EVENTS.METRONOME.SIXTEENTH_CLICK));
       }, (time - this.audioContext.currentTime) * 1000);
     } else {
       gainNode.gain.value = 0; // keep the remaining twelvelet notes inaudible
