@@ -1,10 +1,10 @@
 import React from 'react';
-import _ from 'lodash';
-import Metronome from './Metronome';
-import Piano from './Piano';
-import Button from '@material-ui/core/Button';
-import Snackbar from '@material-ui/core/Snackbar';
+
 import MuiAlert from '@material-ui/lab/Alert';
+import { Snackbar } from '@material-ui/core';
+
+import Controls from './Containers/Controls';
+import MusicSheet from './Containers/MusicSheet';
 
 import './Styles/style.scss';
 
@@ -12,16 +12,27 @@ function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
+export const EVENTS = {
+  METRONOME: {
+    WHOLE_CLICK: 'metronome:wholeClick',
+    QUARTER_CLICK: 'metronome:quarterClick',
+    EIGHTH_CLICK: 'metronome:eighthClick',
+    TRIPLET_CLICK: 'metronome:tripletClick',
+    SIXTEENTH_CLICK: 'metronome:sixteenthClick',
+    PLAY: 'metronome:play',
+    STOP: 'metronome:stop',
+  },
+  PLAYER: {
+    START_OVER: 'player:startOver',
+  },
+}
+
 export default class App extends React.Component {
   constructor(props) {
     super(props);
-    this.firstBar = React.createRef();
     this.metronome = React.createRef();
     this.state = {
       notes: [],
-      rows: [],
-      highlightNote: -1,
-      highlightRow: 0,
       errorShown: false,
       error: '',
     };
@@ -29,189 +40,85 @@ export default class App extends React.Component {
     var ua = navigator.userAgent.toLowerCase();
     if (ua.indexOf('safari') !== -1) {
       if (ua.indexOf('chrome') < 0) {
-        this.state.error = 'This metronome does\'t work on Safari. Try another browser';
-        this.state.errorShown = true;
+        this.error('This metronome does\'t work on Safari. Try another browser');
       }
     }
   }
 
-  getRandomNote(lastNote) {
-    const index = _.random(_.size(this.state.notes) - 1);
-    let note = this.state.notes[index];
-    if (note === lastNote) {
-      note = this.state.notes[(index + 1) % _.size(this.state.notes)];
-    }
-    return note;
+  selectNotes(notes) {
+    this.setState({ notes });
   }
 
-  generateRow(n = 1) {
-    if (n < 1) return;
+  playMetronome() {
+    this.setState({
+      initialClick: false,
+      playing: true,
+    });
+  }
 
-    if (_.isEmpty(this.state.notes)) {
-      this.setState({
-        errorShown: true,
-        error: 'Select at least one note on the piano'
-      });
-      return;
+  stopMetronome() {
+    this.setState({
+      playing: false,
+    });
+  }
+
+  play() {
+    this.metronome.current.play();
+  }
+
+  error(message) {
+    this.setState({
+      error: message,
+      errorShown: true,
+    })
+  }
+
+  async startOver() {
+    if (this.metronome.current.isPlaying()) {
+      await this.metronome.current.play();
     }
 
-    const lastNote = _.chain(this.state.rows)
-      .last()
-      .get('data')
-      .last()
-      .value();
+    document.dispatchEvent(new CustomEvent(EVENTS.PLAYER.START_OVER));
+    this.metronome.current.play();
+  }
 
-    const note0 = this.getRandomNote(lastNote);
-    const note1 = this.getRandomNote(note0);
-    const note2 = this.getRandomNote(note1);
-    const note3 = this.getRandomNote(note2);
-    const note4 = this.getRandomNote(note3);
-    const note5 = this.getRandomNote(note4);
-    const note6 = this.getRandomNote(note5);
-    const note7 = this.getRandomNote(note6);
-
-    this.setState({
-      rows: [...this.state.rows, {
-        id: _.uniqueId(),
-        data: [
-          note0,
-          note1,
-          note2,
-          note3,
-          note4,
-          note5,
-          note6,
-          note7,
-        ],
-      }],
-    }, () => {
-      this.generateRow(n-1);
-    });
-
-    if (this.firstBar.current && _.size(this.state.rows) > 4) {
-      this.firstBar.current.addEventListener('animationend', () => {
-        this.setState({
-          rows: this.state.rows.slice(1),
-          highlightRow: Math.max(this.state.highlightRow - 1, 0),
-        });
-      });
-      this.firstBar.current.classList.add('animated', 'fadeOutUp');
+  async clearRows() {
+    if (this.metronome.current.isPlaying()) {
+      await this.metronome.current.play();
     }
   }
 
-  resetRows() {
-    this.setState({
-      rows: [],
-      highlightNote: -1,
-      highlightRow: 0,
-    });
+  componentDidMount() {
+    document.addEventListener(EVENTS.METRONOME.PLAY, () => this.playMetronome());
+    document.addEventListener(EVENTS.METRONOME.STOP, () => this.stopMetronome());
   }
 
   render() {
-    const notes = _.chain(this.state.rows)
-      .get(this.state.highlightRow)
-      .get('data')
-      .size()
-      .value();
-    const numRows = _.size(this.state.rows);
-    let nextHighlightedNote = this.state.highlightNote + 1;
-    const newRow = Math.floor(nextHighlightedNote / notes);
-    const nextHighlightedRow = this.state.highlightRow + newRow;
-    nextHighlightedNote = nextHighlightedNote % notes;
-
     return (
       <div className="App">
         <div className="App__controls">
-          <Piano onChange={(notes) => this.setState({ notes })} />
-          <Metronome
-            ref={this.metronome}
-            tempo={120}
-            onWholeClick={() => {
-              const initialClick = this.state.initialClick;
-              if (!initialClick) {
-                this.setState({
-                  initialClick: true,
-                });
-              } else {
-                if (newRow) {
-                  this.generateRow();
-                }
-                this.setState({
-                  highlightNote: nextHighlightedNote || 0,
-                  highlightRow: nextHighlightedRow || 0,
-                });
-              }
-            }}
-            onPlay={() => {
-              this.generateRow(4 - numRows);
-              this.setState({
-                initialClick: false,
-                playing: true,
-              });
-            }}
-            onStop={() => {
-              this.setState({
-                playing: false,
-              });
-            }}
+          <Controls
+            metronome={this.metronome}
+            selectNotes={(notes) => this.selectNotes(notes)}
+            playMetronome={() => this.playMetronome()}
+            stopMetronome={() => this.stopMetronome()}
           />
         </div>
-        <header className="App__header">
-          <div className="App__button-row">
-            <Button variant="contained" color="primary" onClick={() => {
-              if (numRows) {
-                this.metronome.current.play();
-              } else {
-                this.generateRow(4 - numRows);
-              }
-            }}>
-              {numRows ? (this.state.playing ? 'Stop' : 'Play') : 'Generate Notes'}
-            </Button>
-            <Button variant="contained" color="primary" onClick={async () => {
-              if (this.metronome.current.isPlaying()) {
-                await this.metronome.current.play();
-              }
-              this.setState({
-                highlightNote: -1,
-                highlightRow: 0,
-              });
-              this.metronome.current.play();
-            }}>
-              {numRows ? 'Start Over' : 'Generate and Play'}
-            </Button>
-            <Button variant="contained" color="primary" onClick={async () => {
-              if (this.metronome.current.isPlaying()) {
-                await this.metronome.current.play();
-              }
-              this.resetRows();
-            }}>
-              Clear
-            </Button>
-          </div>
-          <div className="App__note-display--container">
-            {this.state.rows.map((row, indexRow) => (
-              <div ref={!indexRow && this.firstBar} key={row.id} className="App__note-display--row">
-                <span className="App__note-display--clef">&#x1d122;</span>
-                {row.data.map((note, indexNote) => {
-                  const isCurrent = this.state.highlightRow === indexRow && this.state.highlightNote === indexNote;
-                  const isNext = nextHighlightedRow === indexRow && nextHighlightedNote === indexNote;
-                  return (
-                    <div key={indexNote} className="App__note-display--note-container">
-                      <div className={`App__note-display--note ${isCurrent && 'highlight'} ${isNext && 'next-highlight'}`}>
-                        {note}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
-          <Snackbar open={this.state.errorShown} onClose={() => this.setState({ errorShown: false })}>
-            <Alert onClose={() => this.setState({ errorShown: false })} severity="error">
-              {this.state.error}
-            </Alert>
-          </Snackbar>
-        </header>
+        <div className="App__header">
+          <MusicSheet
+            playing={this.state.playing}
+            play={() => this.play()}
+            notes={this.state.notes}
+            startOver={() => this.startOver()}
+            clearRows={() => this.clearRows()}
+            error={(message) => this.error(message)}
+          />
+        </div>
+        <Snackbar open={this.state.errorShown} onClose={() => this.setState({ errorShown: false })}>
+          <Alert onClose={() => this.setState({ errorShown: false })} severity="error">
+            {this.state.error}
+          </Alert>
+        </Snackbar>
       </div>
     );
   }

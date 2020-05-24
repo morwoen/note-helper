@@ -47,6 +47,7 @@
       display: flex;
       flex-direction: row;
       width: 100vw;
+      transition: 400ms ease-in-out;
     }
 
     &--note-container {

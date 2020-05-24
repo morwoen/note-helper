@@ -1,14 +1,22 @@
 import React from 'react';
 import _ from 'lodash';
-import Grid from '@material-ui/core/Grid';
-import Slider from '@material-ui/core/Slider';
-import VolumeDown from '@material-ui/icons/VolumeDown';
-import VolumeUp from '@material-ui/icons/VolumeUp';
-import Play from '@material-ui/icons/PlayArrow';
-import Pause from '@material-ui/icons/Pause';
-import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
-import Fab from '@material-ui/core/Fab';
+
+import {
+  Grid,
+  Slider,
+  Typography,
+  Button,
+  Fab,
+} from '@material-ui/core';
+
+import {
+  VolumeDown,
+  VolumeUp,
+  PlayArrow,
+  Pause,
+} from '@material-ui/icons';
+
+import { EVENTS } from '../App';
 
 export default class Metronome extends React.Component {
   static defaultProps = {
@@ -111,6 +119,7 @@ export default class Metronome extends React.Component {
       this.nextNoteTime = this.audioContext.currentTime;
       this.timerWorker.postMessage("start");
       this.props.onPlay();
+      document.dispatchEvent(new CustomEvent(EVENTS.METRONOME.PLAY));
     } else {
       _.each(this.notesInQueue, noteData => {
         if (noteData.callbackTimer) clearTimeout(noteData.callbackTimer);
@@ -118,6 +127,7 @@ export default class Metronome extends React.Component {
       this.notesInQueue = [];
       this.timerWorker.postMessage("stop");
       this.props.onStop();
+      document.dispatchEvent(new CustomEvent(EVENTS.METRONOME.STOP));
     }
     return promise;
   }
@@ -177,30 +187,35 @@ export default class Metronome extends React.Component {
       }
       noteData.callbackTimer = setTimeout(() => {
         this.props.onWholeClick();
+        document.dispatchEvent(new CustomEvent(EVENTS.METRONOME.WHOLE_CLICK));
       }, (time - this.audioContext.currentTime) * 1000);
     } else if (beatNumber % 12 === 0) { // quarter notes = medium pitch
       osc.frequency.value = this.tripletVolume ? tripletAccentFrequency : offbeatFrequency;
       gainNode.gain.value = this.calcVolume(this.quarterVolume);
       noteData.callbackTimer = setTimeout(() => {
         this.props.onQuarterClick();
+        document.dispatchEvent(new CustomEvent(EVENTS.METRONOME.QUARTER_CLICK));
       }, (time - this.audioContext.currentTime) * 1000);
     } else if (beatNumber % 6 === 0) {
       osc.frequency.value = offbeatFrequency;
       gainNode.gain.value = this.calcVolume(this.eighthVolume);
       noteData.callbackTimer = setTimeout(() => {
         this.props.onEighthClick();
+        document.dispatchEvent(new CustomEvent(EVENTS.METRONOME.EIGHTH_CLICK));
       }, (time - this.audioContext.currentTime) * 1000);
     } else if (beatNumber % 4 === 0) {
       osc.frequency.value = offbeatFrequency;
       gainNode.gain.value = this.calcVolume(this.tripletVolume);
       noteData.callbackTimer = setTimeout(() => {
         this.props.onTripletClick();
+        document.dispatchEvent(new CustomEvent(EVENTS.METRONOME.TRIPLET_CLICK));
       }, (time - this.audioContext.currentTime) * 1000);
     } else if (beatNumber % 3 === 0) { // other 16th notes = low pitch
       osc.frequency.value = offbeatFrequency;
       gainNode.gain.value = this.calcVolume(this.sixteenthVolume);
       noteData.callbackTimer = setTimeout(() => {
         this.props.onSixteenthClick();
+        document.dispatchEvent(new CustomEvent(EVENTS.METRONOME.SIXTEENTH_CLICK));
       }, (time - this.audioContext.currentTime) * 1000);
     } else {
       gainNode.gain.value = 0; // keep the remaining twelvelet notes inaudible
@@ -216,7 +231,7 @@ export default class Metronome extends React.Component {
         <div className="vertical-container">
           <div className="play-button">
             <Fab size="small" color="primary" aria-label="play/pause" onClick={() => this.play()}>
-              {this.state.isPlaying ? <Pause /> : <Play />}
+              {this.state.isPlaying ? <Pause /> : <PlayArrow />}
             </Fab>
           </div>
           <div className="metronome__bpm--container">
