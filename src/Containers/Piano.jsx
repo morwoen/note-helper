@@ -3,6 +3,8 @@ import _ from 'lodash';
 
 import { Button } from '@material-ui/core';
 
+import WhiteKey from '../Components/WhiteKey';
+
 const initialState = {
   "C": true,
   "C♯": false,
@@ -22,6 +24,26 @@ const initialState = {
   "B♭": false,
   "B": true,
 };
+
+const naturals = [
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "A",
+  "B",
+]
+
+const accidentals = [
+  ["D♭", "C♯"],
+  ["E♭", "D♯"],
+  [],
+  ["G♭", "F♯"],
+  ["A♭", "G♯"],
+  ["B♭", "A♯"],
+  [],
+]
 
 export default class Piano extends React.Component {
   static defaultProps = {
@@ -60,32 +82,21 @@ export default class Piano extends React.Component {
   }
 
   selectNaturals() {
-    const stateChange = {
-      "C": true,
-      "D": true,
-      "E": true,
-      "F": true,
-      "G": true,
-      "A": true,
-      "B": true,
-    };
+    const stateChange = _.chain(naturals)
+      .keyBy((key) => key)
+      .mapValues(() => true)
+      .value();
+
     this.setState(stateChange);
     this.callOnChange(_.extend({}, this.state, stateChange));
   }
 
   selectAccidentals() {
-    const stateChange = {
-      "C♯": true,
-      "D♭": true,
-      "D♯": true,
-      "E♭": true,
-      "F♯": true,
-      "G♭": true,
-      "G♯": true,
-      "A♭": true,
-      "A♯": true,
-      "B♭": true,
-    };
+    const stateChange = _.chain(accidentals.flat())
+      .keyBy((key) => key)
+      .mapValues(() => true)
+      .value();
+
     this.setState(stateChange);
     this.callOnChange(_.extend({}, this.state, stateChange));
   }
@@ -100,99 +111,42 @@ export default class Piano extends React.Component {
   }
 
   changeNote = (note) => {
-    return () => {
-      const stateChange = { [note]: !this.state[note] };
-      this.setState(stateChange);
-      this.callOnChange(_.extend({}, this.state, stateChange));
-    };
+    const stateChange = { [note]: !this.state[note] };
+    this.setState(stateChange);
+    this.callOnChange(_.extend({}, this.state, stateChange));
+  }
+
+  noteStatus = (note) => {
+    return this.state[note] ? 'selected' : '';
   }
 
   render() {
     return (
-      <div className="piano__container">
-        <div className="piano">
-          <div className="piano__black-keys">
-            <div className="piano__black-keys--key c">
-              <div className={`flat ${this.state['D♭'] && 'selected'}`} onClick={this.changeNote('D♭')}>
-                <span className="note">D♭</span>
-              </div>
-              <div className={`sharp ${this.state['C♯'] && 'selected'}`} onClick={this.changeNote('C♯')}>
-                <span className="note">C♯</span>
-              </div>
-            </div>
-            <div className="piano__black-keys--key d">
-              <div className={`flat ${this.state['E♭'] && 'selected'}`} onClick={this.changeNote('E♭')}>
-                <span className="note">E♭</span>
-              </div>
-              <div className={`sharp ${this.state['D♯'] && 'selected'}`} onClick={this.changeNote('D♯')}>
-                <span className="note">D♯</span>
-              </div>
-            </div>
-            <div className="piano__black-keys--key f">
-              <div className={`flat ${this.state['G♭'] && 'selected'}`} onClick={this.changeNote('G♭')}>
-                <span className="note">G♭</span>
-              </div>
-              <div className={`sharp ${this.state['F♯'] && 'selected'}`} onClick={this.changeNote('F♯')}>
-                <span className="note">F♯</span>
-              </div>
-            </div>
-            <div className="piano__black-keys--key g">
-              <div className={`flat ${this.state['A♭'] && 'selected'}`} onClick={this.changeNote('A♭')}>
-                <span className="note">A♭</span>
-              </div>
-              <div className={`sharp ${this.state['G♯'] && 'selected'}`} onClick={this.changeNote('G♯')}>
-                <span className="note">G♯</span>
-              </div>
-            </div>
-            <div className="piano__black-keys--key a">
-              <div className={`flat ${this.state['B♭'] && 'selected'}`} onClick={this.changeNote('B♭')}>
-                <span className="note">B♭</span>
-              </div>
-              <div className={`sharp ${this.state['A♯'] && 'selected'}`} onClick={this.changeNote('A♯')}>
-                <span className="note">A♯</span>
-              </div>
-            </div>
-          </div>
-          <div className="piano__white-keys">
-            <div className={`piano__white-keys--key ${this.state.C && 'selected'}`} onClick={this.changeNote('C')}>
-              <span className="note">C</span>
-            </div>
-            <div className={`piano__white-keys--key ${this.state.D && 'selected'}`} onClick={this.changeNote('D')}>
-              <span className="note">D</span>
-            </div>
-            <div className={`piano__white-keys--key ${this.state.E && 'selected'}`} onClick={this.changeNote('E')}>
-              <span className="note">E</span>
-            </div>
-            <div className={`piano__white-keys--key ${this.state.F && 'selected'}`} onClick={this.changeNote('F')}>
-              <span className="note">F</span>
-            </div>
-            <div className={`piano__white-keys--key ${this.state.G && 'selected'}`} onClick={this.changeNote('G')}>
-              <span className="note">G</span>
-            </div>
-            <div className={`piano__white-keys--key ${this.state.A && 'selected'}`} onClick={this.changeNote('A')}>
-              <span className="note">A</span>
-            </div>
-            <div className={`piano__white-keys--key ${this.state.B && 'selected'}`} onClick={this.changeNote('B')}>
-              <span className="note">B</span>
-            </div>
-          </div>
+      <div className="piano">
+        <div className="piano__keys">
+          {naturals.map((key, index) => {
+            return (
+              <WhiteKey
+                key={key}
+                label={key}
+                clickHandle={(note) => this.changeNote(note)}
+                selected={(note) => this.noteStatus(note)}
+                blackKey={accidentals[index]}
+                zIndex={naturals.length - index}
+              />
+            )
+          })}
         </div>
         <div className="piano__buttons">
-          <div>
-            <Button variant="contained" color="primary" onClick={() => this.selectNaturals()}>
-              Select Naturals
-            </Button>
-          </div>
-          <div>
-            <Button variant="contained" color="primary" onClick={() => this.selectAccidentals()}>
-              Select Accidentals
-            </Button>
-          </div>
-          <div>
-            <Button variant="contained" color="primary" onClick={() => this.clearSelected()}>
-              Deselect All
-            </Button>
-          </div>
+          <Button variant="contained" color="primary" onClick={() => this.selectNaturals()}>
+            Select Naturals
+          </Button>
+          <Button variant="contained" color="primary" onClick={() => this.selectAccidentals()}>
+            Select Accidentals
+          </Button>
+          <Button variant="contained" color="primary" onClick={() => this.clearSelected()}>
+            Deselect All
+          </Button>
         </div>
       </div>
     );
